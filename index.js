@@ -3,6 +3,8 @@ const app = express();
 const cors = require('cors');
 require('dotenv').config()
 const port = process.env.PORT || 5000;
+const { ObjectId } = require('mongodb');
+
 
 // middleware
 app.use(cors());
@@ -12,7 +14,7 @@ app.use(express.json());
 
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://<username>:<password>@cluster0.icictvn.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.BD_USER}:${process.env.DB_PASS}@cluster0.icictvn.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -27,6 +29,29 @@ async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
+
+
+        const classCollection = client.db("sportsDb").collection("classes");
+
+        const instructorCollection = client.db("sportsDb").collection("instructors");
+
+        const selectCollection = client.db("sportsDb").collection("select");
+
+
+        // class data
+        app.get('/classes', async (req, res) => {
+            const result = await classCollection.find().toArray();
+            res.send(result)
+        })
+        // instructor data
+        app.get('/instructors', async (req, res) => {
+            const result = await instructorCollection.find().toArray();
+            res.send(result)
+        })
+
+
+
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");

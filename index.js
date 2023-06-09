@@ -49,7 +49,13 @@ async function run() {
             res.send(result)
         })
 
-
+        // select data
+        app.post('/select', async (req, res) => {
+            const select = req.body;
+            console.log(select)
+            const result = await selectCollection.insertOne(select)
+            res.send(result)
+        })
 
 
         // Send a ping to confirm a successful connection

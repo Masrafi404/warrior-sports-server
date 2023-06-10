@@ -72,7 +72,7 @@ async function run() {
             res.send(result)
         })
 
-        // select data single data delete
+        // selected single data delete
         app.delete('/carts/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
@@ -114,6 +114,14 @@ async function run() {
             res.send(result)
         })
 
+
+        // user delete
+        app.delete('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await usersCollection.deleteOne(query)
+            res.send(result)
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });

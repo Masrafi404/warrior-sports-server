@@ -57,6 +57,8 @@ async function run() {
 
         const paymentCollection = client.db("sportsDb").collection("payments");
 
+        const addClassCollection = client.db("sportsDb").collection("addClass");
+
 
         // jwt
         app.post('/jwt', (req, res) => {
@@ -128,6 +130,15 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await selectCollection.deleteOne(query)
+            res.send(result)
+        })
+
+
+        // pay single data load
+        app.get('/payment/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await selectCollection.findOne(query)
             res.send(result)
         })
 
@@ -244,20 +255,49 @@ async function run() {
             const payment = req.body;
             const insertResult = await paymentCollection.insertOne(payment);
 
-            const query = { _id: { $in: payment.cartItems.map(id => new ObjectId(id)) } }
-            const deleteResult = await selectCollection.deleteMany(query)
+            const query = { _id: payment.cartId };
+
+            const deleteResult = await selectCollection.deleteOne(query)
 
             res.send({ insertResult, deleteResult });
         })
 
 
 
-        // enrolled and payment history
-        app.get('/payments', async (req, res) => {
+        //  payment history
+        app.get('/paymentsHistory', async (req, res) => {
+            const result = await paymentCollection.find().sort({ date: -1 }).toArray();
+            res.send(result);
+        });
+
+
+        // enrolled class
+        app.get('/paymentsEnroll', async (req, res) => {
             const result = await paymentCollection.find().toArray();
+            res.send(result);
+        });
+
+
+        // ad class
+        app.post('/addClass', async (req, res) => {
+            const addClass = req.body;
+            const result = await addClassCollection.insertOne(addClass)
             res.send(result)
         })
 
+
+        // my class data
+        app.get('/addClass', async (req, res) => {
+            const email = req.query.email;
+            console.log(email)
+            if (!email) {
+                res.send([]);
+            }
+
+            const query = { email: email }
+            const result = await selectCollection.find(query).toArray()
+            res.send(result)
+        })
 
 
         // Send a ping to confirm a successful connection

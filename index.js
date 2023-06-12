@@ -63,9 +63,11 @@ async function run() {
         // jwt
         app.post('/jwt', (req, res) => {
             const user = req.body;
-            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
-            res.send({ token })
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24h' });
+            res.send({ token });
         })
+
+
 
         // verify admin
         const verifyAdmin = async (req, res, next) => {
@@ -265,17 +267,74 @@ async function run() {
 
 
         //  payment history
-        app.get('/paymentsHistory', async (req, res) => {
-            const result = await paymentCollection.find().sort({ date: -1 }).toArray();
-            res.send(result);
-        });
+        // app.get('/paymentsHistory', async (req, res) => {
+        //     const result = await paymentCollection.find().sort({ date: -1 }).toArray();
+        //     res.send(result);
+        // });
 
 
         // enrolled class
-        app.get('/paymentsEnroll', async (req, res) => {
-            const result = await paymentCollection.find().toArray();
+        // app.get('/paymentsEnroll', async (req, res) => {
+        //     const result = await paymentCollection.find().toArray();
+        //     res.send(result);
+        // });
+
+
+
+
+        // my enrollment
+        app.get('/paymentHistories', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            console.log(email);
+
+            if (!email) {
+                res.send([]);
+                return;
+            }
+
+            const decodedEmail = req.decoded.email;
+            if (email !== decodedEmail) {
+                return res.status(403).send({ error: true, message: 'forbidden access' })
+            }
+
+            const query = {
+                email: email
+            };
+            const result = await paymentCollection.find(query).toArray();
             res.send(result);
         });
+
+
+
+
+
+        // my enrollment
+        app.get('/paymentEnrolledClasses', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            console.log(email);
+
+            if (!email) {
+                res.send([]);
+                return;
+            }
+
+            const decodedEmail = req.decoded.email;
+            if (email !== decodedEmail) {
+                return res.status(403).send({ error: true, message: 'forbidden access' })
+            }
+
+            const query = {
+                email: email
+            };
+            const result = await paymentCollection.find(query).toArray();
+            res.send(result);
+        });
+
+
+
+
+
+
 
 
         // ad class

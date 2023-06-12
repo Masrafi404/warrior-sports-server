@@ -255,7 +255,7 @@ async function run() {
             const payment = req.body;
             const insertResult = await paymentCollection.insertOne(payment);
 
-            const query = { _id: payment.cartId };
+            const query = { _id: new ObjectId(payment.cartId) };
 
             const deleteResult = await selectCollection.deleteOne(query)
 
